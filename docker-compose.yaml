@@ -64,7 +64,7 @@ services:
       CONNECT_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka0:19092"
       CONNECT_GROUP_ID: "connect"
       CONNECT_REST_ADVERTISED_HOST_NAME: "connect"
-      CONNECT_PLUGIN_PATH: "/usr/share/java"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components/"
       CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_KEY_CONVERTER: "io.confluent.connect.avro.AvroConverter"
@@ -77,9 +77,24 @@ services:
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
+    command:
+        ## Install BigQuery Connector
+      - bash
+      - -c
+      - |
+        echo "Installing Connector"
+        confluent-hub install --no-prompt wepay/kafka-connect-bigquery:1.1.0
+        #
+        echo "Launching Kafka Connect worker"
+        /etc/confluent/docker/run &
+        #
+        sleep infinity
     depends_on:
     - "kafka0"
     - "schema-registry"
+    volumes:
+      -  /input/test_producer/dummy.txt:/tmp/test.txt
+      -  /input/test_producer/dummy.txt:/tmp/test6.txt
 
   ksql:
     image: confluentinc/cp-ksql-server:5.2.2
@@ -138,3 +153,15 @@ services:
     volumes:
     - ./input/bootstrap_data/cta_stations.csv:/tmp/cta_stations.csv
     - ./load_stations.sql:/docker-entrypoint-initdb.d/load_stations.sql
+
+  tornado-server:
+    image: molleggiato/docker-tornado
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/var/www/tornado
+    environment:
+      IDX_SCR: "server.py"
+    depends_on:
+      - "kafka0"
+  

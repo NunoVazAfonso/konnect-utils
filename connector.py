@@ -19,20 +19,20 @@ CONNECTION_URL = "jdbc:postgresql://framework-kafka_postgres_1:5432/cta"
 connectors = [
     {
         "type" : "jdbc",
-        "name": "test2-stations-jdbc",
+        "name": "stations-jdbc",
         "url": "jdbc:postgresql://framework-kafka_postgres_1:5432/cta",
         "user": "cta_admin",
         "password": "chicago",
         "table": "stations",
         "incrementing_column": "stop_id",
-        "topic_prefix": "com.nunovazafonso.kafka_trains.test2.",
+        "topic_prefix": "com.nva.pg.0709.",
         "poll_interval": "5000",
         "max_rows": "500"
     },
     {
         "type" : "file",
-        "name": "test5-file",
-        "topic": "com.nunovazafonso.file.test5",
+        "name": "test-file1",
+        "topic": "com.nva.file.0709.1",
         "poll_interval": "5000",
         "max_rows": "500",
         "tasks.max":"1",
@@ -40,8 +40,8 @@ connectors = [
     },
     {
         "type" : "file",
-        "name": "test-6-file",
-        "topic": "com.nunovazafonso.file.test6",
+        "name": "test-file2",
+        "topic": "com.nva.file.0709.2",
         "poll_interval": "5000",
         "max_rows": "500",
         "tasks.max":"1",
