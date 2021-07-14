@@ -11,14 +11,6 @@ from consumer import KafkaConsumer
 logger = logging.getLogger(__name__)
 WEB_SERVER_PORT = 8889
 
-example_json = '[ \
-        {"stop_id":40007,"direction_id":"c","stop_name":"tester","station_name":"tester","station_descriptive_name":"tester","station_id":321,"order":3,"red":true,"blue":false,"green":false},\
-        {"stop_id":40010,"direction_id":"c","stop_name":"tester","station_name":"tester","station_descriptive_name":"tester","station_id":321,"order":3,"red":true,"blue":false,"green":false}\
-    ]'
-
-
-loaded_json = json.loads(example_json)
-
 
 class MainHandler(tornado.web.RequestHandler):
 

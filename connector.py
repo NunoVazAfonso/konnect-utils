@@ -55,9 +55,9 @@ def get_connector_configs( connector_info ):
         connector_config = {
             "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
             "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-            "key.converter.schemas.enable": "false",
+            "key.converter.schemas.enable": "true",
             "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-            "value.converter.schemas.enable": "false",
+            "value.converter.schemas.enable": "true",
             "batch.max.rows": connector_info["max_rows"],
             "connection.url": connector_info["url"],
             "connection.user": connector_info["user"],
@@ -75,9 +75,9 @@ def get_connector_configs( connector_info ):
         connector_config = {
             "connector.class": "FileStreamSource",
             "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-            "key.converter.schemas.enable": "false",
+            "key.converter.schemas.enable": "true",
             "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-            "value.converter.schemas.enable": "false",
+            "value.converter.schemas.enable": "true",
             "tasks.max": connector_info["tasks.max"],
             "topic": connector_info["topic"],
             "file": connector_info["file"],

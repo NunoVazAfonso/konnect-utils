@@ -154,6 +154,15 @@ services:
     - ./input/bootstrap_data/cta_stations.csv:/tmp/cta_stations.csv
     - ./load_stations.sql:/docker-entrypoint-initdb.d/load_stations.sql
 
+  postgres-sink:
+    image: postgres:11
+    ports:
+    - "5433:5432"
+    environment:
+      POSTGRES_USER: "cta_admin"
+      POSTGRES_PASSWORD: "chicago"
+      POSTGRES_DB: "cta"
+
   tornado-server:
     image: molleggiato/docker-tornado
     ports:
