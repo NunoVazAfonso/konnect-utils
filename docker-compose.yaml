@@ -83,8 +83,7 @@ services:
       - -c
       - |
         echo "Installing Connector"
-        confluent-hub install --no-prompt wepay/kafka-connect-bigquery:1.1.0
-        #
+        confluent-hub install --no-prompt wepay/kafka-connect-bigquery:2.0.0
         echo "Launching Kafka Connect worker"
         /etc/confluent/docker/run &
         #
@@ -93,8 +92,10 @@ services:
     - "kafka0"
     - "schema-registry"
     volumes:
+      - ./connector-jars/mysql-connector-java-8.0.13.jar:/usr/share/java/kafka-connect-jdbc/mysql-connector-java-8.0.13.jar
       -  /input/test_producer/dummy.txt:/tmp/test.txt
       -  /input/test_producer/dummy.txt:/tmp/test6.txt
+      - /home/nafonso/Downloads/vernal-citadel-318510-b01c424dbf79.json:/tmp/key.json
 
   ksql:
     image: confluentinc/cp-ksql-server:5.2.2
@@ -173,4 +174,19 @@ services:
       IDX_SCR: "server.py"
     depends_on:
       - "kafka0"
+
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: default_schema
+      MYSQL_USER: "cta_admin"
+      MYSQL_PASSWORD: "chicago"
+      MYSQL_TCP_PORT: 3306
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./startup_mysql.sql:/docker-entrypoint-initdb.d/startup_mysql.sql
   

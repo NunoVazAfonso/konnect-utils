@@ -13,19 +13,28 @@ KAFKA_CONNECT_URL = "http://localhost:8083/connectors"
 # you need to pass SCHEMA INFORMATION in order for sink to work
 # multiple connectors 
 connector_sink = [
+    #{
+    #    "type" : "jdbc",
+    #    "name": "stations-sink",
+    #    "source_topic": "com.nva.pg.0709.stations",
+    #    "url": "jdbc:postgresql://framework-kafka_postgres-sink_1:5432/cta",
+    #    "user": "cta_admin",
+    #    "password": "chicago",
+    #    "table": "stations",
+    #    "incrementing_column": "stop_id",
+    #    "topic_prefix": "com.nva.pg.0709.",
+    #    "poll_interval": "5000",
+    #    "max_rows": "500"
+    #},
     {
-        "type" : "jdbc",
-        "name": "stations-sink",
-        "source_topic": "com.nva.pg.0709.stations",
-        "url": "jdbc:postgresql://framework-kafka_postgres-sink_1:5432/cta",
-        "user": "cta_admin",
-        "password": "chicago",
-        "table": "stations",
-        "incrementing_column": "stop_id",
-        "topic_prefix": "com.nva.pg.0709.",
-        "poll_interval": "5000",
-        "max_rows": "500"
+        "type": "bq" ,
+        "name": "bq-sink",
+        "source_topic": "com.nva.mysql_test.test_table",
+        "destination_project": "vernal-citadel-318510",
+        "key_location": "/tmp/key.json",
+        "destination_dataset": ".*=kafkatest",
     }
+
 ]
 
 def get_connector_configs( connector_info ):
@@ -47,6 +56,27 @@ def get_connector_configs( connector_info ):
             "pk.mode": "none",
             "table.name.format": "kafka_stations-sink", 
             "topics": connector_info["source_topic"]  
+        }
+
+        return connector_config
+
+    elif connector_info["type"] == "bq":
+        connector_config = {
+            "connector.class": "com.wepay.kafka.connect.bigquery.BigQuerySinkConnector",
+            "tasks.max" : "1",
+            "topics" : connector_info["source_topic"],
+            "sanitizeTopics" : "true",
+            "autoCreateTables" : "true",
+            "autoUpdateSchemas" : "true",
+            "schemaRetriever" : "com.wepay.kafka.connect.bigquery.retrieve.IdentitySchemaRetriever",
+            "project" : connector_info["destination_project"],
+            "defaultDataset": "kafkatest",
+            "keyfile" : connector_info["key_location"],
+            "transforms": "addTS",
+            "transforms.addTS.type": "org.apache.kafka.connect.transforms.InsertField$Value",
+            "transforms.addTS.timestamp.field": "op_ts",
+            "allowNewBigQueryFields" :"true",
+            "allowBigQueryRequiredFieldRelaxation" :"true",
         }
 
         return connector_config
@@ -78,9 +108,10 @@ def configure_connector( connector_info ):
     )
 
     ## Ensure a healthy response was given
+    print("oi")
+    print(resp.text)
     resp.raise_for_status()
     
-    print(resp)
 
     logging.debug("Sink connector created successfully")
 
