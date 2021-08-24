@@ -92,7 +92,8 @@ services:
     - "kafka0"
     - "schema-registry"
     volumes:
-      - ./connector-jars/mysql-connector-java-8.0.13.jar:/usr/share/java/kafka-connect-jdbc/mysql-connector-java-8.0.13.jar
+      #- ./connector-jars/mysql-connector-java-8.0.13.jar:/usr/share/java/kafka-connect-jdbc/mysql-connector-java-8.0.13.jar
+      - ./connector-jars/:/usr/share/java/kafka-connect-jdbc/
       -  /input/test_producer/dummy.txt:/tmp/test.txt
       -  /input/test_producer/dummy.txt:/tmp/test6.txt
       - /home/nafonso/Downloads/vernal-citadel-318510-b01c424dbf79.json:/tmp/key.json

@@ -17,48 +17,60 @@ CONNECTION_URL = "jdbc:postgresql://framework-kafka_postgres_1:5432/cta"
 
 # multiple connectors 
 connectors = [
+	# {
+	# 	"type" : "jdbc",
+	# 	"name": "stations-jdbc",
+	# 	"url": "jdbc:postgresql://framework-kafka_postgres_1:5432/cta",
+	# 	"user": "cta_admin",
+	# 	"password": "chicago",
+	# 	"table": "stations",
+	# 	"incrementing_column": "stop_id",
+	# 	"topic_prefix": "com.nva.pg.0709.",
+	# 	"poll_interval": "5000",
+	# 	"max_rows": "500"
+	# },
+	# {
+	# 	"type" : "mysql",
+	# 	"name": "mysql-jdbc",
+	# 	"url": "jdbc:mysql://framework-kafka_mysql_1:3306/default_schema",
+	# 	"user": "cta_admin",
+	# 	"password": "chicago",
+	# 	"table": "test_table",
+	# 	"incrementing_column": "id",
+	# 	"ts_column": "updated_at",
+	# 	"topic_prefix": "com.nva.mysql_test.",
+	# 	"poll_interval": "5000",
+	# 	"max_rows": "500"
+	# },
+	# {
+	# 	"type" : "file",
+	# 	"name": "test-file1",
+	# 	"topic": "com.nva.file.0709.1",
+	# 	"poll_interval": "5000",
+	# 	"max_rows": "500",
+	# 	"tasks.max":"1",
+	# 	"file":"/tmp/test.txt"
+	# },
+	# {
+	# 	"type" : "file",
+	# 	"name": "test-file2",
+	# 	"topic": "com.nva.file.0709.2",
+	# 	"poll_interval": "5000",
+	# 	"max_rows": "500",
+	# 	"tasks.max":"1",
+	# 	"file":"/tmp/test6.txt"
+	# },
 	{
-		"type" : "jdbc",
-		"name": "stations-jdbc",
-		"url": "jdbc:postgresql://framework-kafka_postgres_1:5432/cta",
-		"user": "cta_admin",
-		"password": "chicago",
-		"table": "stations",
-		"incrementing_column": "stop_id",
-		"topic_prefix": "com.nva.pg.0709.",
-		"poll_interval": "5000",
-		"max_rows": "500"
-	},
-	{
-		"type" : "mysql",
-		"name": "mysql-jdbc",
-		"url": "jdbc:mysql://framework-kafka_mysql_1:3306/default_schema",
+		"type" : "mysql-deb",
+		"name": "mysql-debezium",
+		"url": "framework-kafka_mysql_1",
+		"schema_name": "default_schema",
 		"user": "cta_admin",
 		"password": "chicago",
 		"table": "test_table",
-		"incrementing_column": "id",
-		"ts_column": "updated_at",
-		"topic_prefix": "com.nva.mysql_test.",
+		"topic_prefix": "com_nva_debezium_test_",
 		"poll_interval": "5000",
 		"max_rows": "500"
-	},
-	{
-		"type" : "file",
-		"name": "test-file1",
-		"topic": "com.nva.file.0709.1",
-		"poll_interval": "5000",
-		"max_rows": "500",
-		"tasks.max":"1",
-		"file":"/tmp/test.txt"
-	},
-	{
-		"type" : "file",
-		"name": "test-file2",
-		"topic": "com.nva.file.0709.2",
-		"poll_interval": "5000",
-		"max_rows": "500",
-		"tasks.max":"1",
-		"file":"/tmp/test6.txt"
 	},
 ]
 
@@ -76,6 +88,21 @@ def get_connector_configs( connector_info ):
 			"timestamp.column.name": connector_info["ts_column"],
 			"incrementing.column.name": connector_info["incrementing_column"],
 			"topic.prefix": connector_info["topic_prefix"]
+		}
+
+		return connector_config
+
+	elif connector_info["type"] == "mysql-deb": 
+		connector_config = {
+        	"connector.class": "io.debezium.connector.mysql.MySqlConnector", 
+        	"database.hostname": connector_info["url"], 
+        	"database.user": connector_info["user"], 
+        	"database.password": connector_info["password"], 
+        	"database.server.name": connector_info["topic_prefix"], 
+        	"database.include.list": connector_info["schema_name"], 
+	        "database.history.kafka.bootstrap.servers": "kafka0:19092", 
+        	"database.history.kafka.topic": "debeziumhistory_" +connector_info["topic_prefix"], 
+        	"include.schema.changes": "true" 
 		}
 
 		return connector_config
@@ -141,9 +168,10 @@ def configure_connector( connector_info ):
 	)
 
 	## Ensure a healthy response was given
+	print(resp.__dict__)
+
 	resp.raise_for_status()
 	
-	print(resp)
 
 	logging.debug("connector created successfully")
 
